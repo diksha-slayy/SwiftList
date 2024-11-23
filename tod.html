@@ -1,0 +1,255 @@
+<html>
+<head>
+    <title>TO doSS</title>
+    <script src="https://unpkg.com/react/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        .bg-light-brown {
+            background-color: #D2B48C;
+        }
+        .bg-brown {
+            background-color: #8B4513;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState } = React;
+
+        function App() {
+            const [tasks, setTasks] = useState([]);
+            const [newTask, setNewTask] = useState("");
+            const [background, setBackground] = useState("");
+            const [menuOpen, setMenuOpen] = useState(false);
+            const [page, setPage] = useState("home");
+
+            const addTask = () => {
+                if (newTask.trim() !== "") {
+                    setTasks([...tasks, { text: newTask, completed: false }]);
+                    setNewTask("");
+                }
+            };
+
+            const toggleTaskCompletion = (index) => {
+                const updatedTasks = tasks.map((task, i) => 
+                    i === index ? { ...task, completed: !task.completed } : task
+                );
+                setTasks(updatedTasks);
+            };
+
+            const removeTask = (index) => {
+                const updatedTasks = tasks.filter((_, i) => i !== index);
+                setTasks(updatedTasks);
+            };
+
+            const handleBackgroundChange = (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        setBackground(e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            const removeBackground = () => {
+                setBackground("");
+            };
+
+            const renderPageContent = () => {
+                switch (page) {
+                    case "settings":
+                        return (
+                            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+                                <h2 className="text-2xl font-bold mb-4">Settings</h2>
+                                <div className="mb-4">
+                                    <h3 className="text-xl font-semibold">Account</h3>
+                                    <ul className="list-disc pl-5">
+                                        <li>Change Password</li>
+                                        <li>Manage Subscriptions</li>
+                                        <li>Privacy Settings</li>
+                                    </ul>
+                                </div>
+                                <div className="mb-4">
+                                    <h3 className="text-xl font-semibold">Notifications</h3>
+                                    <ul className="list-disc pl-5">
+                                        <li>Email Notifications</li>
+                                        <li>Push Notifications</li>
+                                        <li>SMS Notifications</li>
+                                    </ul>
+                                </div>
+                                <div className="mb-4">
+                                    <h3 className="text-xl font-semibold">Appearance</h3>
+                                    <ul className="list-disc pl-5">
+                                        <li>Theme</li>
+                                        <li>Font Size</li>
+                                        <li>Background</li>
+                                    </ul>
+                                </div>
+                                <button 
+                                    className="bg-light-brown text-white px-4 py-2 rounded"
+                                    onClick={() => setPage("home")}
+                                >
+                                    Go Back
+                                </button>
+                            </div>
+                        );
+                    case "help":
+                        return (
+                            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+                                <h2 className="text-2xl font-bold mb-4">Help</h2>
+                                <p>Need help? Here are some resources:</p>
+                                <ul className="list-disc pl-5">
+                                    <li>FAQ</li>
+                                    <li>Contact Support</li>
+                                    <li>Community Forums</li>
+                                </ul>
+                                <button 
+                                    className="bg-light-brown text-white px-4 py-2 rounded"
+                                    onClick={() => setPage("home")}
+                                >
+                                    Go Back
+                                </button>
+                            </div>
+                        );
+                    case "privacy":
+                        return (
+                            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+                                <h2 className="text-2xl font-bold mb-4">Privacy</h2>
+                                <p>Your privacy is important to us. Here is our privacy policy:</p>
+                                <ul className="list-disc pl-5">
+                                    <li>Data Collection</li>
+                                    <li>Data Usage</li>
+                                    <li>Data Protection</li>
+                                </ul>
+                                <button 
+                                    className="bg-light-brown text-white px-4 py-2 rounded"
+                                    onClick={() => setPage("home")}
+                                >
+                                    Go Back
+                                </button>
+                            </div>
+                        );
+                    default:
+                        return (
+                            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+                                <div className="flex mb-4">
+                                    <input 
+                                        type="text" 
+                                        className="flex-grow p-2 border rounded-l-lg" 
+                                        placeholder="Add a new task" 
+                                        value={newTask} 
+                                        onChange={(e) => setNewTask(e.target.value)} 
+                                    />
+                                    <button 
+                                        className="bg-light-brown text-white p-2 rounded-r-lg" 
+                                        onClick={addTask}
+                                    >
+                                        Add
+                                    </button>
+                                </div>
+                                <ul>
+                                    {tasks.map((task, index) => (
+                                        <li key={index} className="flex items-center justify-between mb-2">
+                                            <div className="flex items-center">
+                                                <span className="mr-2">{index + 1}.</span>
+                                                <span 
+                                                    className={`flex-grow ${task.completed ? 'line-through text-gray-500' : ''}`} 
+                                                    onClick={() => toggleTaskCompletion(index)}
+                                                >
+                                                    {task.text}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center">
+                                                <button 
+                                                    className={`w-6 h-6 rounded-full border-2 ${task.completed ? 'bg-green-500 border-green-500' : 'border-gray-500'}`} 
+                                                    onClick={() => toggleTaskCompletion(index)}
+                                                ></button>
+                                                <button 
+                                                    className="text-red-500 ml-2" 
+                                                    onClick={() => removeTask(index)}
+                                                >
+                                                    <i className="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        );
+                }
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col" style={{ backgroundImage: `url(${background})`, backgroundSize: 'cover' }}>
+                    <nav className="bg-brown p-4 flex justify-between items-center">
+                        <h1 className="text-2xl font-bold text-white">TO doSS</h1>
+                        <div className="relative">
+                            <button 
+                                className="text-white focus:outline-none" 
+                                onClick={() => setMenuOpen(!menuOpen)}
+                            >
+                                <i className="fas fa-ellipsis-v"></i>
+                            </button>
+                            {menuOpen && (
+                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+                                    <label className="block px-4 py-2 text-gray-800 cursor-pointer hover:bg-gray-200">
+                                        Change Background
+                                        <input 
+                                            type="file" 
+                                            accept="image/*" 
+                                            className="hidden" 
+                                            onChange={handleBackgroundChange} 
+                                        />
+                                    </label>
+                                    <button 
+                                        className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-200"
+                                        onClick={removeBackground}
+                                    >
+                                        Remove Background
+                                    </button>
+                                    <a 
+                                        href="#" 
+                                        className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                                        onClick={() => setPage("settings")}
+                                    >
+                                        Settings
+                                    </a>
+                                    <a 
+                                        href="#" 
+                                        className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                                        onClick={() => setPage("help")}
+                                    >
+                                        Help
+                                    </a>
+                                    <a 
+                                        href="#" 
+                                        className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                                        onClick={() => setPage("privacy")}
+                                    >
+                                        Privacy
+                                    </a>
+                                </div>
+                            )}
+                        </div>
+                    </nav>
+                    <div className="flex-grow flex flex-col items-center justify-center">
+                        {renderPageContent()}
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
